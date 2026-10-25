@@ -1,0 +1,42 @@
+name: Buat APK Nebula
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ambil kode proyek
+        uses: actions/checkout@v4
+
+      - name: Siapkan Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Ekstrak proyek
+        run: |
+          mkdir proyek
+          unzip -q *.zip -d proyek
+          find proyek -name build.gradle -print
+
+      - name: Siapkan Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Bangun APK
+        run: |
+          cd proyek
+          gradle assembleDebug
+
+      - name: Simpan APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Nebula-APK
+          path: proyek/**/build/outputs/apk/debug/*.apk
